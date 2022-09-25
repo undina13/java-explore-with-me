@@ -2,6 +2,7 @@ package ru.practicum.main_server.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.main_server.dto.NewUserRequest;
 import ru.practicum.main_server.dto.UserDto;
 import ru.practicum.main_server.service.UserService;
 
@@ -19,7 +20,7 @@ public class UserAdminController {
 
     @GetMapping
     public List<UserDto> getUsers(
-            @RequestParam List<Long> ids,
+            @RequestParam (required = false) List<Long> ids,
             @RequestParam(defaultValue = "0", required = false) int from,
             @RequestParam(defaultValue = "10", required = false) int size) {
         log.info("get users");
@@ -27,9 +28,9 @@ public class UserAdminController {
     }
 
     @PostMapping
-    public UserDto saveUser(@RequestBody UserDto userDto) {
+    public UserDto saveUser(@RequestBody NewUserRequest newUserRequest) {
         log.info("save user");
-        return userService.saveUser(userDto);
+        return userService.saveUser(newUserRequest);
     }
 
     @DeleteMapping("/{userId}")

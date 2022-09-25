@@ -1,5 +1,6 @@
 package ru.practicum.main_server.dto;
 
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class CompilationDto {
 
     private List<Event> events;
 
+    @NotNull
     private String title;
 
     private boolean pinned;

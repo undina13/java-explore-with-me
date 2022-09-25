@@ -1,32 +1,48 @@
 package ru.practicum.main_server.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import ru.practicum.main_server.dto.NewUserRequest;
 import ru.practicum.main_server.dto.UserDto;
+import ru.practicum.main_server.mapper.UserMapper;
 import ru.practicum.main_server.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
 
+    @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
 
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        return null;
+        if(ids.isEmpty()){
+            return userRepository.findAll(PageRequest.of(from / size, size))
+                    .stream()
+                    .map(UserMapper::toUserDto)
+                    .collect(Collectors.toList());
+        }
+        return userRepository.findUsersByIds(ids, PageRequest.of(from / size, size))
+                .stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
-    public UserDto saveUser(UserDto userDto) {
-        return null;
+    @Transactional
+    public UserDto saveUser(NewUserRequest newUserRequest) {
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(newUserRequest)));
     }
 
+    @Transactional
     public void deleteUser(Long userId) {
+        userRepository.delete(userRepository.findById(userId).get());
     }
 }

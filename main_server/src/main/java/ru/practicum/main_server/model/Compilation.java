@@ -23,9 +23,6 @@ public class Compilation {
   //  @JoinColumn(name = "parent_id", referencedColumnName = "id")
     private List<Event> events;
 
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "title", nullable = false)
     private String title;
 

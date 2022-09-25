@@ -2,6 +2,7 @@ package ru.practicum.main_server.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.main_server.dto.CategoryDto;
 import ru.practicum.main_server.dto.EventFullDto;
 import ru.practicum.main_server.dto.EventShortDto;
 import ru.practicum.main_server.service.CategoryService;
@@ -19,14 +20,14 @@ public class CategoryController {
     }
 
     @GetMapping()
-    List<EventShortDto> getCategories(@RequestParam(defaultValue = "0") int from,
-                                      @RequestParam(defaultValue = "10") int size) {
+    List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") int from,
+                                    @RequestParam(defaultValue = "10") int size) {
         log.info("get categories");
         return categoryService.getCategories(from, size);
     }
 
     @GetMapping("/{id}")
-    EventFullDto getCategoryById(@PathVariable long id) {
+    CategoryDto getCategoryById(@PathVariable long id) {
         log.info("get category id={}", id);
         return categoryService.getCategoryById(id);
     }
