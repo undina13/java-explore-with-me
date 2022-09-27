@@ -1,4 +1,4 @@
-package ru.practicum.main_server.model;
+package ru.practicum.stat_server.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,22 +13,21 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "participations")
-
-public class Participation {
+@Table(name = "hits")
+public class HitModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created")
-    private LocalDateTime created;
+    @Column(name = "app")
+    private String app;
 
-    @ManyToOne
-    private Event event;
+    @Column(name = "uri")
+    private String uri;
 
-    @ManyToOne
-    private User requester;
+    @Column(name = "ip")
+    private String ip;
 
-    @Enumerated(EnumType.STRING)
-    private State status;
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
 }

@@ -9,7 +9,7 @@ import ru.practicum.main_server.service.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping(path = "admin/users")
 @Slf4j
 public class UserAdminController {
     private final UserService userService;

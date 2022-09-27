@@ -28,7 +28,7 @@ public class CompilationService {
     }
 
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
-        //TODO  прилепить эвенты в список при отдаче
+    //TODO  прилепить эвенты в список при отдаче
         return compilationRepository.findAllByPinned(pinned, PageRequest.of(from / size, size))
                 .stream()
                 .map(CompilationMapper::toCompilationDto)

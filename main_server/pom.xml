@@ -8,10 +8,10 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>main_server</artifactId>
+	<artifactId>ewm-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>Main server</name>
+	<name>ewm-service </name>
 
 	<dependencies>
 		<dependency>

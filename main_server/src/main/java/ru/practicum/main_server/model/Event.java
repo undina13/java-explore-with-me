@@ -22,8 +22,9 @@ public class Event {
     @Column(name = "annotation", nullable = false)
     private String annotation;
 
-    @Column(name = "category_id", nullable = false)
+
     @ManyToOne
+ //   @Column(name = "category_id", nullable = false)
     private Category category;
 
    // private int confirmedRequests;
@@ -37,7 +38,7 @@ public class Event {
     private LocalDateTime eventDate;
 
     @ManyToOne
-    @Column(name = "initiator_id", nullable = false)
+ //   @Column(name = "initiator_id", nullable = false)
     private User initiator;
 
     @ManyToOne
@@ -47,7 +48,7 @@ public class Event {
     private boolean paid;
 
     @Column(name = "participant_limit")
-    private int participantLimit;
+    private Integer participantLimit;
 
     @Column(name = "published_on")
     private LocalDateTime publishedOn;

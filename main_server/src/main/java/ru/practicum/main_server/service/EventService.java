@@ -3,7 +3,10 @@ package ru.practicum.main_server.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_server.dto.*;
+import ru.practicum.main_server.exception.ObjectNotFoundException;
+import ru.practicum.main_server.model.Event;
 import ru.practicum.main_server.model.State;
+import ru.practicum.main_server.model.User;
 import ru.practicum.main_server.repository.EventRepository;
 
 import java.util.List;
@@ -13,6 +16,10 @@ import java.util.List;
 public class EventService {
     private final EventRepository eventRepository;
 
+    public Event checkAndGetEvent(long eventId){
+        return eventRepository.findById(eventId).orElseThrow(()->
+                new ObjectNotFoundException("event with id = " + eventId + " not found"));
+    }
     public EventService(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
     }

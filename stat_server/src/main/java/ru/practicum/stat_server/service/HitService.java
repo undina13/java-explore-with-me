@@ -1,0 +1,79 @@
+package ru.practicum.stat_server.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.stat_server.HitMapper;
+import ru.practicum.stat_server.dto.EndpointHit;
+import ru.practicum.stat_server.dto.ViewStats;
+import ru.practicum.stat_server.model.HitModel;
+import ru.practicum.stat_server.repository.HitRepository;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional(readOnly = true)
+public class HitService {
+    private final HitRepository hitRepository;
+
+    @Autowired
+    public HitService(HitRepository hitRepository) {
+        this.hitRepository = hitRepository;
+    }
+
+    public static <T> Predicate<T> distinctByKey(
+            Function<? super T, ?> keyExtractor) {
+
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+    public EndpointHit createHit(EndpointHit endpointHit) {
+        HitModel hitModel = HitMapper.toHitModel(endpointHit);
+        return HitMapper.toEndpointHit(hitRepository.save(hitModel));
+    }
+
+    public List<ViewStats> getViewStats(String start, String end, List<String> uris, Boolean unique) throws UnsupportedEncodingException {
+        LocalDateTime startDate = LocalDateTime.parse(
+                URLDecoder.decode(start, StandardCharsets.UTF_8.toString())
+        );
+        LocalDateTime endDate = LocalDateTime.parse(
+                URLDecoder.decode(end, StandardCharsets.UTF_8.toString())
+        );
+        List<ViewStats> viewStatsList = new ArrayList<>();
+        if(uris==null){
+           uris = hitRepository.findAllByTimestampBetween(startDate, endDate)
+                   .stream()
+                   .map(HitModel::getUri)
+                   .distinct()
+                   .collect(Collectors.toList());
+        }
+        for (String uri : uris) {
+            List<HitModel> models = hitRepository.findAllByUriAndTimestampBetween(uri, startDate, endDate);
+            if (unique) {
+                models = models
+                        .stream()
+                        .filter(distinctByKey(HitModel::getIp))
+                        .collect(Collectors.toList());
+            }
+            if (!models.isEmpty()) {
+                viewStatsList.add(ViewStats.builder()
+                        .app(models.get(0).getApp())
+                        .uri(uri)
+                        .hits(models.size())
+                        .build());
+            }
+        }
+        return viewStatsList;
+    }
+}
