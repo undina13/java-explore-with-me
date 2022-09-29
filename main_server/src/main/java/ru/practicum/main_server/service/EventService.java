@@ -52,17 +52,7 @@ public class EventService {
         return null;
     }
 
-    public List<ParticipationRequestDto> getEventParticipationByOwner(Long userId, Long eventId) {
-        return null;
-    }
 
-    public ParticipationRequestDto approvalParticipationEventRequest(Long userId, Long eventId, Long participationId) {
-        return null;
-    }
-
-    public ParticipationRequestDto rejectParticipationEventRequest(Long userId, Long eventId, Long participationId) {
-        return null;
-    }
 
     public List<EventFullDto> getAdminEvents(List<Long> users, List<State> states, List<Long> categories, String rangeStart, String rangeEnd, int from, int size) {
         return null;

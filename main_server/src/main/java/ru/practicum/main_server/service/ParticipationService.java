@@ -81,4 +81,16 @@ public class ParticipationService {
         }
         return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
     }
+
+    public List<ParticipationRequestDto> getEventParticipationByOwner(Long userId, Long eventId) {
+        return null;
+    }
+
+    public ParticipationRequestDto approvalParticipationEventRequest(Long userId, Long eventId, Long participationId) {
+        return null;
+    }
+
+    public ParticipationRequestDto rejectParticipationEventRequest(Long userId, Long eventId, Long participationId) {
+        return null;
+    }
 }

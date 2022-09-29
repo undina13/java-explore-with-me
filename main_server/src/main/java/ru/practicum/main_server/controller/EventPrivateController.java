@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main_server.dto.*;
 import ru.practicum.main_server.service.EventService;
+import ru.practicum.main_server.service.ParticipationService;
 
 import java.util.List;
 
@@ -12,9 +13,11 @@ import java.util.List;
 @Slf4j
 public class EventPrivateController {
     private final EventService eventService;
+    private final ParticipationService participationService;
 
-    public EventPrivateController(EventService eventService) {
+    public EventPrivateController(EventService eventService, ParticipationService participationService) {
         this.eventService = eventService;
+        this.participationService = participationService;
     }
 
     @GetMapping()
@@ -58,22 +61,22 @@ public class EventPrivateController {
     public List<ParticipationRequestDto> getEventParticipationByOwner(@PathVariable Long userId,
                                                                       @PathVariable Long eventId) {
         log.info("get event {} participations  userId{}", eventId, userId);
-        return eventService.getEventParticipationByOwner(userId, eventId);
+        return participationService.getEventParticipationByOwner(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests/{reqId}/confirm")
     public ParticipationRequestDto approvalParticipationEventRequest(@PathVariable Long userId,
                                                                      @PathVariable Long eventId,
-                                                                     @PathVariable Long participationId) {
-        log.info("approval  participations {} userId{}", participationId, userId);
-        return eventService.approvalParticipationEventRequest(userId, eventId, participationId);
+                                                                     @PathVariable Long reqId) {
+        log.info("approval  participations {} userId{}", reqId, userId);
+        return participationService.approvalParticipationEventRequest(userId, eventId, reqId);
     }
 
     @PatchMapping("/{eventId}/requests/{reqId}/reject")
     public ParticipationRequestDto rejectParticipationEventRequest(@PathVariable Long userId,
                                                       @PathVariable Long eventId,
-                                                      @PathVariable Long participationId) {
-        log.info("approval  participations {} userId{}", participationId, userId);
-        return eventService.rejectParticipationEventRequest(userId, eventId, participationId);
+                                                      @PathVariable Long reqId) {
+        log.info("approval  participations {} userId{}", reqId, userId);
+        return participationService.rejectParticipationEventRequest(userId, eventId, reqId);
     }
 }
