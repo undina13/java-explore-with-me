@@ -14,7 +14,7 @@ public class NewEventDto {
 
     private String annotation;
 
-    private CategoryDto category;
+    private long category;
 
     private String description;
 

@@ -15,19 +15,15 @@ public class UpdateEventRequest {
 
     private String annotation;
 
-    private CategoryDto category;
+    private Long category;
 
     private String description;
 
     private String eventDate;
 
-    private UserShortDto initiator;
+    private Boolean paid;
 
-    private Location location;
-
-    private boolean paid;
-
-    private int participantLimit;
+    private Integer participantLimit;
 
     private String title;
 }
