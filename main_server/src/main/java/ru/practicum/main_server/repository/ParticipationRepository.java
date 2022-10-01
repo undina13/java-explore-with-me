@@ -13,9 +13,9 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
 
     Participation findByEventAndRequester (Event event, User requester);
 
-    int findDistinctByEventAndStatus(Event event, State status);
+    Integer findDistinctByEventAndStatus(Event event, State status);
 
-    int countByEventIdAndStatus(Long eventId, State status);
+    Integer countByEventIdAndStatus(Long eventId, State status);
 
     List<Participation> findAllByEventId(long eventId);
 }

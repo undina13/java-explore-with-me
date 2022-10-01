@@ -21,7 +21,7 @@ public class EventPublicController {
 
     @GetMapping()
     List<EventShortDto> getEvents(@RequestParam(required = false) String text,
-                                  @RequestParam List<Integer> categories,
+                                  @RequestParam List<Long> categories,
                                   @RequestParam Boolean paid,
                                   @RequestParam String rangeStart,
                                   @RequestParam String rangeEnd,

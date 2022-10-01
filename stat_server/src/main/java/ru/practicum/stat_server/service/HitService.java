@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class HitService {
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
+    @Transactional
     public EndpointHit createHit(EndpointHit endpointHit) {
         HitModel hitModel = HitMapper.toHitModel(endpointHit);
         return HitMapper.toEndpointHit(hitRepository.save(hitModel));
@@ -45,11 +47,9 @@ public class HitService {
 
     public List<ViewStats> getViewStats(String start, String end, List<String> uris, Boolean unique) throws UnsupportedEncodingException {
         LocalDateTime startDate = LocalDateTime.parse(
-                URLDecoder.decode(start, StandardCharsets.UTF_8.toString())
+               start,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         );
-        LocalDateTime endDate = LocalDateTime.parse(
-                URLDecoder.decode(end, StandardCharsets.UTF_8.toString())
-        );
+        LocalDateTime endDate = LocalDateTime.parse( end,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         List<ViewStats> viewStatsList = new ArrayList<>();
         if(uris==null){
            uris = hitRepository.findAllByTimestampBetween(startDate, endDate)

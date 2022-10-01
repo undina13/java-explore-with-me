@@ -20,7 +20,7 @@ public interface EventRepository extends JpaRepository<Event, Long>{
             "AND ((:paid) IS NULL OR e.paid = :paid) " +
             "AND (e.eventDate >= :start) " +
             "AND ( e.eventDate <= :end)")
-    Page<Event> searchEvents(String text, List<Integer> categories, Boolean paid, LocalDateTime start,
+    Page<Event> searchEvents(String text, List<Long> categories, Boolean paid, LocalDateTime start,
                            LocalDateTime end,  Pageable pageable);
 
     Page<Event> findAllByInitiatorId(Long userId, Pageable pageable);

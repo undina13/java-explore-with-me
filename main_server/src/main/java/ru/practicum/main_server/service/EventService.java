@@ -43,7 +43,7 @@ public class EventService {
         this.locationService = locationService;
     }
 
-    public List<EventShortDto> getEvents(String text, List<Integer> categories, Boolean paid, String rangeStart,
+    public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, String rangeStart,
                                          String rangeEnd, Boolean onlyAvailable, String sort, int from, int size) {
         LocalDateTime start;
         if (rangeStart == null) {
@@ -55,7 +55,7 @@ public class EventService {
         if (rangeEnd == null) {
             end = LocalDateTime.MAX;
         } else {
-            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            end = LocalDateTime.parse(rangeEnd,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
 
         List<Event> events = eventRepository.searchEvents(text, categories, paid, start, end,
@@ -105,6 +105,7 @@ public class EventService {
 
     @Transactional
     public EventFullDto updateEvent(Long userId, UpdateEventRequest updateEventRequest) {
+
         Event event = checkAndGetEvent(updateEventRequest.getEventId());
         if (!event.getInitiator().getId().equals(userId)) {
             throw new WrongRequestException("only creator can update event");
@@ -121,7 +122,8 @@ public class EventService {
             event.setCategory(category);
         }
         if (updateEventRequest.getEventDate() != null) {
-            LocalDateTime date = LocalDateTime.parse(updateEventRequest.getEventDate());
+            LocalDateTime date = LocalDateTime.parse(updateEventRequest.getEventDate(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if (date.isBefore(LocalDateTime.now().minusHours(2))) {
                 throw new WrongRequestException("date event is too late");
             }
@@ -191,19 +193,18 @@ public class EventService {
 
 
     public List<EventFullDto> getAdminEvents(List<Long> users, List<State> states, List<Long> categories,
-
                                              String rangeStart, String rangeEnd, int from, int size) {
         LocalDateTime start;
         if (rangeStart == null) {
             start = LocalDateTime.now();
         } else {
-            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            start = LocalDateTime.parse(rangeStart,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
         LocalDateTime end;
         if (rangeEnd == null) {
             end = LocalDateTime.MAX;
         } else {
-            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            end = LocalDateTime.parse(rangeEnd,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
 
         return eventRepository.searchEventsByAdmin(users,states, categories, start, end,
@@ -231,7 +232,8 @@ public class EventService {
             event.setDescription(adminUpdateEventRequest.getDescription());
         }
         if (adminUpdateEventRequest.getEventDate() != null) {
-            LocalDateTime date = LocalDateTime.parse(adminUpdateEventRequest.getEventDate());
+            LocalDateTime date = LocalDateTime.parse(adminUpdateEventRequest.getEventDate(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if (date.isBefore(LocalDateTime.now().minusHours(2))) {
                 throw new WrongRequestException("date event is too late");
             }
