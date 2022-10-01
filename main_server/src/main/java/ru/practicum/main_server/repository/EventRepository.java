@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.main_server.model.Category;
 import ru.practicum.main_server.model.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
+import ru.practicum.main_server.model.State;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,4 +25,14 @@ public interface EventRepository extends JpaRepository<Event, Long>{
 
     Page<Event> findAllByInitiatorId(Long userId, Pageable pageable);
 
+    @Query("SELECT e FROM Event AS e " +
+            "WHERE ((:users) IS NULL OR e.initiator.id IN :users) " +
+            "AND ((:states) IS NULL OR e.state IN :states) " +
+            "AND ((:categories) IS NULL OR e.category.id IN :categories) " +
+            "AND (e.eventDate >= :start) " +
+            "AND ( e.eventDate <= :end)")
+    Page<Event> searchEventsByAdmin(List<Long> users, List<State> states, List<Long> categories,
+                             LocalDateTime start, LocalDateTime end, Pageable pageable);
 }
+
+

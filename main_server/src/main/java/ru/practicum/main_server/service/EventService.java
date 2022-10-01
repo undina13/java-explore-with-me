@@ -5,10 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_server.client.HitClient;
-import ru.practicum.main_server.dto.EventFullDto;
-import ru.practicum.main_server.dto.EventShortDto;
-import ru.practicum.main_server.dto.NewEventDto;
-import ru.practicum.main_server.dto.UpdateEventRequest;
+import ru.practicum.main_server.dto.*;
 import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.exception.WrongRequestException;
 import ru.practicum.main_server.mapper.EventMapper;
@@ -79,7 +76,12 @@ public class EventService {
                     .sorted(Comparator.comparing(EventShortDto::getViews))
                     .collect(Collectors.toList());
         }
-
+        if (onlyAvailable) {
+            eventShortDtos = eventShortDtos.stream()
+                    .filter(eventShortDto -> eventShortDto.getConfirmedRequests()
+                                    <= checkAndGetEvent(eventShortDto.getId()).getParticipantLimit())
+                    .collect(Collectors.toList());
+        }
         return eventShortDtos;
     }
 
@@ -99,8 +101,8 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public EventFullDto updateEvent(Long userId, UpdateEventRequest updateEventRequest) {
-
         Event event = checkAndGetEvent(updateEventRequest.getEventId());
         if (!event.getInitiator().getId().equals(userId)) {
             throw new WrongRequestException("only creator can update event");
@@ -140,6 +142,7 @@ public class EventService {
         return setConfirmedRequestsAndViewsEventFullDto(eventFullDto);
     }
 
+    @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
         Event event = EventMapper.toNewEvent(newEventDto);
         if (event.getEventDate().isBefore(LocalDateTime.now().minusHours(2))) {
@@ -155,29 +158,119 @@ public class EventService {
     }
 
     public EventFullDto getEventCurrentUser(Long userId, Long eventId) {
-        return null;
+        Event event = checkAndGetEvent(eventId);
+        if(!event.getInitiator().getId().equals(userId)){
+            throw new WrongRequestException("only initiator can get fullEventDto");
+        }
+        return setConfirmedRequestsAndViewsEventFullDto(EventMapper.toEventFullDto(event));
     }
 
+    @Transactional
     public EventFullDto cancelEvent(Long userId, Long eventId) {
-        return null;
+        Event event = checkAndGetEvent(eventId);
+        if(!event.getInitiator().getId().equals(userId)){
+            throw new WrongRequestException("only initiator can cancel event");
+        }
+        if(!event.getState().equals(State.PENDING)){
+            throw new WrongRequestException("you can cancel only pending event");
+        }
+        event.setState(State.CANCELED);
+        event = eventRepository.save(event);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
+        return setConfirmedRequestsAndViewsEventFullDto(eventFullDto);
     }
 
 
     public List<EventFullDto> getAdminEvents(List<Long> users, List<State> states, List<Long> categories,
+
                                              String rangeStart, String rangeEnd, int from, int size) {
-        return null;
+        LocalDateTime start;
+        if (rangeStart == null) {
+            start = LocalDateTime.now();
+        } else {
+            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+        LocalDateTime end;
+        if (rangeEnd == null) {
+            end = LocalDateTime.MAX;
+        } else {
+            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        return eventRepository.searchEventsByAdmin(users,states, categories, start, end,
+                PageRequest.of(from / size, size))
+                .stream()
+                .map(EventMapper::toEventFullDto)
+                .map(this::setConfirmedRequestsAndViewsEventFullDto)
+                .collect(Collectors.toList());
     }
 
-    public EventFullDto updateEventByAdmin(Long eventId, NewEventDto newEventDto) {
-        return null;
+    @Transactional
+    public EventFullDto updateEventByAdmin(Long eventId, AdminUpdateEventRequest adminUpdateEventRequest) {
+        Event event = checkAndGetEvent(eventId);
+
+
+        if (adminUpdateEventRequest.getAnnotation() != null) {
+            event.setAnnotation(adminUpdateEventRequest.getAnnotation());
+        }
+        if (adminUpdateEventRequest.getCategory() != null) {
+            Category category = categoryRepository.findById(adminUpdateEventRequest.getCategory())
+                    .orElseThrow(() -> new ObjectNotFoundException("Category not found"));
+            event.setCategory(category);
+        }
+        if (adminUpdateEventRequest.getDescription() != null) {
+            event.setDescription(adminUpdateEventRequest.getDescription());
+        }
+        if (adminUpdateEventRequest.getEventDate() != null) {
+            LocalDateTime date = LocalDateTime.parse(adminUpdateEventRequest.getEventDate());
+            if (date.isBefore(LocalDateTime.now().minusHours(2))) {
+                throw new WrongRequestException("date event is too late");
+            }
+            event.setEventDate(date);
+        }
+        if (adminUpdateEventRequest.getLocation() != null) {
+            event.setLocation(adminUpdateEventRequest.getLocation());
+        }
+        if (adminUpdateEventRequest.getRequestModeration() != null) {
+            event.setRequestModeration(adminUpdateEventRequest.getRequestModeration());
+        }
+        if (adminUpdateEventRequest.getPaid() != null) {
+            event.setPaid(adminUpdateEventRequest.getPaid());
+        }
+        if (adminUpdateEventRequest.getParticipantLimit() != null) {
+            event.setParticipantLimit(adminUpdateEventRequest.getParticipantLimit());
+        }
+        if (adminUpdateEventRequest.getTitle() != null) {
+            event.setTitle(adminUpdateEventRequest.getTitle());
+        }
+        event = eventRepository.save(event);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
+        return setConfirmedRequestsAndViewsEventFullDto(eventFullDto);
     }
 
+    @Transactional
     public EventFullDto publishEventByAdmin(Long eventId) {
-        return null;
+        Event event =checkAndGetEvent(eventId);
+        if (event.getEventDate().isBefore(LocalDateTime.now().minusHours(2))) {
+            throw new WrongRequestException("date event is too late");
+        }
+        if(!event.getState().equals(State.PENDING)){
+            throw new WrongRequestException("admin can publish only pending event");
+        }
+        event.setState(State.PUBLISHED);
+        event = eventRepository.save(event);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
+        return setConfirmedRequestsAndViewsEventFullDto(eventFullDto);
     }
 
+    @Transactional
     public EventFullDto rejectEventByAdmin(Long eventId) {
-        return null;
+        Event event =checkAndGetEvent(eventId);
+
+        event.setState(State.CANCELED);
+        event = eventRepository.save(event);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
+        return setConfirmedRequestsAndViewsEventFullDto(eventFullDto);
     }
 
     public Event checkAndGetEvent(long eventId) {

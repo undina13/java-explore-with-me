@@ -43,18 +43,18 @@ public class ParticipationService {
     public ParticipationRequestDto createParticipationRequest(Long userId, Long eventId) {
         User requester = userService.checkAndGetUser(userId);
         Event event = eventService.checkAndGetEvent(eventId);
-        if(participationRepository.findByEventAndRequester(event, requester)!= null){
-            throw  new WrongRequestException("Participation request in event id = "
+        if (participationRepository.findByEventAndRequester(event, requester) != null) {
+            throw new WrongRequestException("Participation request in event id = "
                     + eventId + "by user id = " + userId + " already exist");
         }
-        if(event.getInitiator().equals(requester)){
+        if (event.getInitiator().equals(requester)) {
             throw new WrongRequestException("initiator event can not be requester");
         }
-        if (!(event.getState().equals(State.PUBLISHED))){
+        if (!(event.getState().equals(State.PUBLISHED))) {
             throw new WrongRequestException("you can not request not published event");
         }
         int confirmedRequests = participationRepository.findDistinctByEventAndStatus(event, State.PUBLISHED);
-        if(event.getParticipantLimit()!= null && event.getParticipantLimit()<= confirmedRequests ){
+        if (event.getParticipantLimit() != null && event.getParticipantLimit() <= confirmedRequests) {
             throw new WrongRequestException("Participant limit already full");
         }
         Participation participation = Participation.builder()
@@ -63,7 +63,7 @@ public class ParticipationService {
                 .created(LocalDateTime.now())
                 .status(State.PUBLISHED)
                 .build();
-        if(event.isRequestModeration()){
+        if (event.isRequestModeration()) {
             participation.setStatus(State.PENDING);
         }
 
@@ -72,25 +72,53 @@ public class ParticipationService {
 
     public ParticipationRequestDto cancelRequestByUser(Long userId, Long requestId) {
         Participation participation = participationRepository.findById(requestId)
-                .orElseThrow(()-> new ObjectNotFoundException("request id = " + requestId + " not found"));
-        if(userId.equals(participation.getRequester().getId())){
+                .orElseThrow(() -> new ObjectNotFoundException("request id = " + requestId + " not found"));
+        if (userId.equals(participation.getRequester().getId())) {
             participation.setStatus(State.CANCELED);
-        }
-        else {
+        } else {
             throw new WrongRequestException("Only owner can cancelled request");
         }
         return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
     }
 
     public List<ParticipationRequestDto> getEventParticipationByOwner(Long userId, Long eventId) {
-        return null;
+        Event event = eventService.checkAndGetEvent(eventId);
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new WrongRequestException("Only owner can see requests");
+        }
+        return participationRepository.findAllByEventId(eventId)
+                .stream()
+                .map(ParticipationMapper::toParticipationRequestDto)
+                .collect(Collectors.toList());
     }
-
+@Transactional
     public ParticipationRequestDto approvalParticipationEventRequest(Long userId, Long eventId, Long participationId) {
-        return null;
+        Event event = eventService.checkAndGetEvent(eventId);
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new WrongRequestException("Only owner can see requests");
+        }
+        Participation participation = participationRepository.findById(participationId)
+                .orElseThrow(()->new ObjectNotFoundException("participation not found"));
+        if(!participation.getStatus().equals(State.PENDING)){
+            throw new WrongRequestException("Only status pending can be approval");
+        }
+        int countConfirmedRequests = participationRepository.countByEventIdAndStatus(eventId, State.PUBLISHED);
+        if(event.getParticipantLimit()>=countConfirmedRequests){
+          participation.setStatus(State.CANCELED);
+        }
+        participation.setStatus(State.PUBLISHED);
+        return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
     }
 
     public ParticipationRequestDto rejectParticipationEventRequest(Long userId, Long eventId, Long participationId) {
-        return null;
+        Event event = eventService.checkAndGetEvent(eventId);
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new WrongRequestException("Only owner can see requests");
+        }
+        Participation participation = participationRepository.findById(participationId)
+                .orElseThrow(()->new ObjectNotFoundException("participation not found"));
+
+        participation.setStatus(State.CANCELED);
+        return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
     }
 }
