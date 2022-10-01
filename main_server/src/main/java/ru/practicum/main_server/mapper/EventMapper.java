@@ -40,7 +40,7 @@ public class EventMapper {
                 .description(event.getDescription())
                 .location(event.getLocation())
                 .participantLimit(event.getParticipantLimit())
-                .publishedOn(event.getPublishedOn().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .publishedOn(event.getPublishedOn()==null? null:event.getPublishedOn().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .requestModeration(event.isRequestModeration())
                 .state(event.getState().toString())
                 .build();
@@ -52,7 +52,7 @@ public class EventMapper {
                 .description(newEventDto.getDescription())
                 .eventDate(LocalDateTime.parse(newEventDto.getEventDate(),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .location(newEventDto.getLocation())
+              //  .location(newEventDto.getLocation())
                 .paid(newEventDto.isPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
                 .requestModeration(newEventDto.isRequestModeration())
@@ -61,18 +61,5 @@ public class EventMapper {
                 .createdOn(LocalDateTime.now())
                 .build();
     }
-//    public static Event toUpdateEvent(UpdateEventRequest updateEventRequest){
-//        return Event.builder()
-//                .id(updateEventRequest.getEventId())
-//                .annotation(updateEventRequest.getAnnotation())
-//                .description(updateEventRequest.getDescription())
-//                .eventDate(LocalDateTime.parse(updateEventRequest.getEventDate(),
-//                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-//                .paid(updateEventRequest.isPaid())
-//                .participantLimit(updateEventRequest.getParticipantLimit())
-//                .state(State.PENDING)
-//                .title(updateEventRequest.getTitle())
-//                .createdOn(LocalDateTime.now())
-//                .build();
-//    }
+
 }

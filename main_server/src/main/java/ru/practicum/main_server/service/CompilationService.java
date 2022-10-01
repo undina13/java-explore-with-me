@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_server.dto.CompilationDto;
+import ru.practicum.main_server.dto.EventShortDto;
 import ru.practicum.main_server.dto.NewCompilationDto;
 import ru.practicum.main_server.mapper.CompilationMapper;
 import ru.practicum.main_server.model.Compilation;
@@ -20,27 +21,29 @@ import java.util.stream.Collectors;
 public class CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+    private final EventService eventService;
 
     @Autowired
-    public CompilationService(CompilationRepository compilationRepository, EventRepository eventRepository) {
+    public CompilationService(CompilationRepository compilationRepository, EventRepository eventRepository, EventService eventService) {
         this.compilationRepository = compilationRepository;
         this.eventRepository = eventRepository;
+        this.eventService = eventService;
     }
 
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
-    //TODO  прилепить эвенты в список при отдаче
         return compilationRepository.findAllByPinned(pinned, PageRequest.of(from / size, size))
                 .stream()
                 .map(CompilationMapper::toCompilationDto)
+                .map(this::setViewsAndConfirmedRequestsInDto)
                 .collect(Collectors.toList());
     }
 
     public CompilationDto getCompilationById(long id) {
-        //TODO  прилепить эвенты в список при отдаче
-
-        return CompilationMapper.toCompilationDto(compilationRepository.findById(id).get());
+        CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilationRepository.findById(id).get());
+        return setViewsAndConfirmedRequestsInDto(compilationDto);
     }
 
+    @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = CompilationMapper.toCompilation(newCompilationDto);
         List<Event> events = newCompilationDto.getEvents()
@@ -48,9 +51,9 @@ public class CompilationService {
                 .map(id -> eventRepository.findById(id).get())
                 .collect(Collectors.toList());
         compilation.setEvents(events);
-//TODO  прилепить эвенты в список при отдаче
         Compilation newCompilation = compilationRepository.save(compilation);
-        return CompilationMapper.toCompilationDto(newCompilation);
+        CompilationDto compilationDto = CompilationMapper.toCompilationDto(newCompilation);
+        return setViewsAndConfirmedRequestsInDto(compilationDto);
     }
 
     @Transactional
@@ -83,5 +86,14 @@ public class CompilationService {
         Compilation compilation = compilationRepository.findById(compId).get();
         compilation.setPinned(true);
         compilationRepository.save(compilation);
+    }
+
+    private CompilationDto setViewsAndConfirmedRequestsInDto(CompilationDto compilationDto) {
+        List<EventShortDto> eventShortDtos = compilationDto.getEvents()
+                .stream()
+                .map(eventService::setConfirmedRequestsAndViewsEventShortDto)
+                .collect(Collectors.toList());
+        compilationDto.setEvents(eventShortDtos);
+        return compilationDto;
     }
 }

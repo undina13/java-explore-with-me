@@ -16,7 +16,7 @@ import java.util.List;
 public class CompilationDto {
     private Long id;
 
-    private List<Event> events;
+    private List<EventShortDto> events;
 
     @NotNull
     private String title;

@@ -39,7 +39,7 @@ public class EventPrivateController {
     @PostMapping
     public EventFullDto createEvent(@PathVariable Long userId,
                                     @RequestBody NewEventDto newEventDto) {
-        log.info("create event  userId{}", userId);
+        log.info("create event  userId{} {}", userId, newEventDto);
         return eventService.createEvent(userId, newEventDto);
     }
 

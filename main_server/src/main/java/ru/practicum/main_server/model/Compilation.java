@@ -1,9 +1,6 @@
 package ru.practicum.main_server.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -19,8 +16,14 @@ public class Compilation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-  //  @JoinColumn(name = "parent_id", referencedColumnName = "id")
+   // @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+   @EqualsAndHashCode.Exclude
+   @ManyToMany
+   @JoinTable(
+           name = "compilations_events",
+           joinColumns = {@JoinColumn(name = "compilation_id")},
+           inverseJoinColumns = {@JoinColumn(name = "event_id")}
+   )
     private List<Event> events;
 
     @Column(name = "title", nullable = false)

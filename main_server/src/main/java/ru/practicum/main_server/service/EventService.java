@@ -1,44 +1,46 @@
 package ru.practicum.main_server.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main_server.client.HitClient;
+//import ru.practicum.main_server.client.HitClient;
 import ru.practicum.main_server.dto.*;
 import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.exception.WrongRequestException;
 import ru.practicum.main_server.mapper.EventMapper;
 import ru.practicum.main_server.model.Category;
 import ru.practicum.main_server.model.Event;
+import ru.practicum.main_server.model.Location;
 import ru.practicum.main_server.model.State;
 import ru.practicum.main_server.repository.CategoryRepository;
 import ru.practicum.main_server.repository.EventRepository;
 import ru.practicum.main_server.repository.ParticipationRepository;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 public class EventService {
     private final EventRepository eventRepository;
     private final ParticipationRepository participationRepository;
     private final UserService userService;
-    private final HitClient hitClient;
+ //   private final HitClient hitClient;
     private final CategoryRepository categoryRepository;
+    private final LocationService locationService;
 
-    public EventService(EventRepository eventRepository, ParticipationRepository participationRepository, UserService userService, HitClient hitClient, CategoryRepository categoryRepository) {
+    public EventService(EventRepository eventRepository, ParticipationRepository participationRepository, UserService userService, CategoryRepository categoryRepository, LocationService locationService) {
         this.eventRepository = eventRepository;
         this.participationRepository = participationRepository;
         this.userService = userService;
-        this.hitClient = hitClient;
+ //       this.hitClient = hitClient;
         this.categoryRepository = categoryRepository;
+        this.locationService = locationService;
     }
 
     public List<EventShortDto> getEvents(String text, List<Integer> categories, Boolean paid, String rangeStart,
@@ -144,7 +146,12 @@ public class EventService {
 
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
+        Location location = newEventDto.getLocation();
+        log.info("before location save");
+      location =  locationService.save(location);
+        log.info("location save");
         Event event = EventMapper.toNewEvent(newEventDto);
+        log.info("event {}", event);
         if (event.getEventDate().isBefore(LocalDateTime.now().minusHours(2))) {
             throw new WrongRequestException("date event is too late");
         }
@@ -152,6 +159,8 @@ public class EventService {
         Category category = categoryRepository.findById(newEventDto.getCategory())
                 .orElseThrow(() -> new ObjectNotFoundException("Category not found"));
         event.setCategory(category);
+        event.setLocation(location);
+
         event = eventRepository.save(event);
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         return setConfirmedRequestsAndViewsEventFullDto(eventFullDto);
@@ -293,18 +302,18 @@ public class EventService {
     }
 
     public int getViews(long eventId) {
-        ResponseEntity<Object> responseEntity = null;
-        try {
-            responseEntity = hitClient.getStat(
-                    LocalDateTime.MIN,
-                    LocalDateTime.now(),
-                    List.of("/events/" + eventId),
-                    false
-            );
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        Integer hits = (Integer) ((LinkedHashMap) responseEntity.getBody()).get("hits");
-        return hits;
+//        ResponseEntity<Object> responseEntity = null;
+//        try {
+//            responseEntity = hitClient.getStat(
+//                    LocalDateTime.MIN,
+//                    LocalDateTime.now(),
+//                    List.of("/events/" + eventId),
+//                    false
+//            );
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        Integer hits = (Integer) ((LinkedHashMap) responseEntity.getBody()).get("hits");
+        return 5;
     }
 }

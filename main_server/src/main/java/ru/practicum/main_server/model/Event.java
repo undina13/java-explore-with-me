@@ -22,7 +22,6 @@ public class Event {
     @Column(name = "annotation", nullable = false)
     private String annotation;
 
-
     @ManyToOne
  //   @Column(name = "category_id", nullable = false)
     private Category category;
@@ -41,7 +40,7 @@ public class Event {
  //   @Column(name = "initiator_id", nullable = false)
     private User initiator;
 
-    @ManyToOne
+    @ManyToOne()
     private Location location;
 
     @Column(name = "paid", nullable = false)

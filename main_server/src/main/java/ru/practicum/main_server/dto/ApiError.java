@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.main_server.model.ErrorStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,7 +20,7 @@ public class ApiError {
 
     private String reason;
 
-    private ErrorStatus status;
+    private String status;
 
-    private String timestamp;
+    private LocalDateTime timestamp;
 }
