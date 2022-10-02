@@ -9,10 +9,7 @@ import ru.practicum.main_server.dto.*;
 import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.exception.WrongRequestException;
 import ru.practicum.main_server.mapper.EventMapper;
-import ru.practicum.main_server.model.Category;
-import ru.practicum.main_server.model.Event;
-import ru.practicum.main_server.model.Location;
-import ru.practicum.main_server.model.State;
+import ru.practicum.main_server.model.*;
 import ru.practicum.main_server.repository.CategoryRepository;
 import ru.practicum.main_server.repository.EventRepository;
 import ru.practicum.main_server.repository.ParticipationRepository;
@@ -290,14 +287,14 @@ public class EventService {
     }
 
     public EventShortDto setConfirmedRequestsAndViewsEventShortDto(EventShortDto eventShortDto) {
-        int confirmedRequests = participationRepository.countByEventIdAndStatus(eventShortDto.getId(), State.PUBLISHED);
+        int confirmedRequests = participationRepository.countByEventIdAndStatus(eventShortDto.getId(), StatusRequest.CONFIRMED);
         eventShortDto.setConfirmedRequests(confirmedRequests);
         eventShortDto.setViews(getViews(eventShortDto.getId()));
         return eventShortDto;
     }
 
     public EventFullDto setConfirmedRequestsAndViewsEventFullDto(EventFullDto eventFullDto) {
-        int confirmedRequests = participationRepository.countByEventIdAndStatus(eventFullDto.getId(), State.PUBLISHED);
+        int confirmedRequests = participationRepository.countByEventIdAndStatus(eventFullDto.getId(), StatusRequest.CONFIRMED);
         eventFullDto.setConfirmedRequests(confirmedRequests);
         eventFullDto.setViews(getViews(eventFullDto.getId()));
         return eventFullDto;

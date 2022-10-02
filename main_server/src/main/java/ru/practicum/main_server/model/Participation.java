@@ -30,5 +30,5 @@ public class Participation {
     private User requester;
 
     @Enumerated(EnumType.STRING)
-    private State status;
+    private StatusRequest status;
 }

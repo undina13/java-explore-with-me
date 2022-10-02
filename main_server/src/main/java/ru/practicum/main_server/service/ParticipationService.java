@@ -7,10 +7,7 @@ import ru.practicum.main_server.dto.ParticipationRequestDto;
 import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.exception.WrongRequestException;
 import ru.practicum.main_server.mapper.ParticipationMapper;
-import ru.practicum.main_server.model.Event;
-import ru.practicum.main_server.model.Participation;
-import ru.practicum.main_server.model.State;
-import ru.practicum.main_server.model.User;
+import ru.practicum.main_server.model.*;
 import ru.practicum.main_server.repository.ParticipationRepository;
 import ru.practicum.main_server.repository.UserRepository;
 
@@ -40,6 +37,7 @@ public class ParticipationService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ParticipationRequestDto createParticipationRequest(Long userId, Long eventId) {
         User requester = userService.checkAndGetUser(userId);
         Event event = eventService.checkAndGetEvent(eventId);
@@ -53,28 +51,29 @@ public class ParticipationService {
         if (!(event.getState().equals(State.PUBLISHED))) {
             throw new WrongRequestException("you can not request not published event");
         }
-        int confirmedRequests = participationRepository.findDistinctByEventAndStatus(event, State.PUBLISHED);
-        if (event.getParticipantLimit() != null && event.getParticipantLimit() <= confirmedRequests) {
+        int confirmedRequests = participationRepository.countDistinctByEventAndStatus(event, StatusRequest.CONFIRMED);
+        if (event.getParticipantLimit() != null && event.getParticipantLimit() != 0 && event.getParticipantLimit() <= confirmedRequests) {
             throw new WrongRequestException("Participant limit already full");
         }
         Participation participation = Participation.builder()
                 .event(event)
                 .requester(requester)
                 .created(LocalDateTime.now())
-                .status(State.PUBLISHED)
+                .status(StatusRequest.CONFIRMED)
                 .build();
         if (event.isRequestModeration()) {
-            participation.setStatus(State.PENDING);
+            participation.setStatus(StatusRequest.PENDING);
         }
 
         return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
     }
 
+    @Transactional
     public ParticipationRequestDto cancelRequestByUser(Long userId, Long requestId) {
         Participation participation = participationRepository.findById(requestId)
                 .orElseThrow(() -> new ObjectNotFoundException("request id = " + requestId + " not found"));
         if (userId.equals(participation.getRequester().getId())) {
-            participation.setStatus(State.CANCELED);
+            participation.setStatus(StatusRequest.CANCELED);
         } else {
             throw new WrongRequestException("Only owner can cancelled request");
         }
@@ -99,17 +98,18 @@ public class ParticipationService {
         }
         Participation participation = participationRepository.findById(participationId)
                 .orElseThrow(()->new ObjectNotFoundException("participation not found"));
-        if(!participation.getStatus().equals(State.PENDING)){
+        if(!participation.getStatus().equals(StatusRequest.PENDING)){
             throw new WrongRequestException("Only status pending can be approval");
         }
-        int countConfirmedRequests = participationRepository.countByEventIdAndStatus(eventId, State.PUBLISHED);
+        int countConfirmedRequests = participationRepository.countByEventIdAndStatus(eventId, StatusRequest.CONFIRMED);
         if(event.getParticipantLimit()>=countConfirmedRequests){
-          participation.setStatus(State.CANCELED);
+          participation.setStatus(StatusRequest.REJECTED);
         }
-        participation.setStatus(State.PUBLISHED);
+        participation.setStatus(StatusRequest.CONFIRMED);
         return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
     }
 
+    @Transactional
     public ParticipationRequestDto rejectParticipationEventRequest(Long userId, Long eventId, Long participationId) {
         Event event = eventService.checkAndGetEvent(eventId);
         if (!event.getInitiator().getId().equals(userId)) {
@@ -118,7 +118,7 @@ public class ParticipationService {
         Participation participation = participationRepository.findById(participationId)
                 .orElseThrow(()->new ObjectNotFoundException("participation not found"));
 
-        participation.setStatus(State.CANCELED);
+        participation.setStatus(StatusRequest.REJECTED);
         return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
     }
 }
