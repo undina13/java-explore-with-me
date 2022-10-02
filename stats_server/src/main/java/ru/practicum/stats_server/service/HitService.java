@@ -1,13 +1,13 @@
-package ru.practicum.stat_server.service;
+package ru.practicum.stats_server.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.stat_server.HitMapper;
-import ru.practicum.stat_server.dto.EndpointHit;
-import ru.practicum.stat_server.dto.ViewStats;
-import ru.practicum.stat_server.model.HitModel;
-import ru.practicum.stat_server.repository.HitRepository;
+import ru.practicum.stats_server.HitMapper;
+import ru.practicum.stats_server.dto.EndpointHit;
+import ru.practicum.stats_server.dto.ViewStats;
+import ru.practicum.stats_server.model.HitModel;
+import ru.practicum.stats_server.repository.HitRepository;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;

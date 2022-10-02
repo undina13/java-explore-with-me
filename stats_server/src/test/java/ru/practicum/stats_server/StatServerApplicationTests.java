@@ -1,4 +1,4 @@
-package ru.practicum.stat_server;
+package ru.practicum.stats_server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

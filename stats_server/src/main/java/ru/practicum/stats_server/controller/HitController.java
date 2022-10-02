@@ -1,11 +1,11 @@
-package ru.practicum.stat_server.controller;
+package ru.practicum.stats_server.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.stat_server.dto.EndpointHit;
-import ru.practicum.stat_server.dto.ViewStats;
-import ru.practicum.stat_server.service.HitService;
+import ru.practicum.stats_server.dto.EndpointHit;
+import ru.practicum.stats_server.dto.ViewStats;
+import ru.practicum.stats_server.service.HitService;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;

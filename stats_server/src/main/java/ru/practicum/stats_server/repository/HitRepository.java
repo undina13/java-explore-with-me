@@ -1,7 +1,7 @@
-package ru.practicum.stat_server.repository;
+package ru.practicum.stats_server.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.stat_server.model.HitModel;
+import ru.practicum.stats_server.model.HitModel;
 
 import java.time.LocalDateTime;
 import java.util.List;

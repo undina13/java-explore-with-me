@@ -11,7 +11,6 @@ import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.exception.WrongRequestException;
 import ru.practicum.main_server.mapper.EventMapper;
 import ru.practicum.main_server.model.*;
-import ru.practicum.main_server.model.ViewStats;
 import ru.practicum.main_server.repository.CategoryRepository;
 import ru.practicum.main_server.repository.EventRepository;
 import ru.practicum.main_server.repository.ParticipationRepository;
@@ -22,7 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -315,7 +313,7 @@ public class EventService {
                 false);
 
         log.info("responseEntity {}", responseEntity.getBody());
-        if(responseEntity.getBody().equals("")){
+        if (responseEntity.getBody().equals("")) {
             Integer hits = (Integer) ((LinkedHashMap) responseEntity.getBody()).get("hits");
             return hits;
         }

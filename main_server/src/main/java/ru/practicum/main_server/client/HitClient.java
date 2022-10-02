@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.main_server.dto.EndpointHit;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.Map;
 public class HitClient extends BaseClient {
 
     @Autowired
-    public HitClient(@Value("${stat-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public HitClient(@Value("${STAT_SERVER_URL}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))

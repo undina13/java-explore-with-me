@@ -38,19 +38,19 @@ public class EventMapper {
                 .description(event.getDescription())
                 .location(event.getLocation())
                 .participantLimit(event.getParticipantLimit())
-                .publishedOn(event.getPublishedOn()==null? null:event.getPublishedOn().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .publishedOn(event.getPublishedOn() == null ? null : event.getPublishedOn()
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .requestModeration(event.isRequestModeration())
                 .state(event.getState().toString())
                 .build();
     }
 
-    public static Event toNewEvent(NewEventDto newEventDto){
+    public static Event toNewEvent(NewEventDto newEventDto) {
         return Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .description(newEventDto.getDescription())
                 .eventDate(LocalDateTime.parse(newEventDto.getEventDate(),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-              //  .location(newEventDto.getLocation())
                 .paid(newEventDto.isPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
                 .requestModeration(newEventDto.isRequestModeration())
@@ -59,5 +59,4 @@ public class EventMapper {
                 .createdOn(LocalDateTime.now())
                 .build();
     }
-
 }

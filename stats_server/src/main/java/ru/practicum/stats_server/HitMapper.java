@@ -1,8 +1,8 @@
-package ru.practicum.stat_server;
+package ru.practicum.stats_server;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.stat_server.dto.EndpointHit;
-import ru.practicum.stat_server.model.HitModel;
+import ru.practicum.stats_server.dto.EndpointHit;
+import ru.practicum.stats_server.model.HitModel;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
