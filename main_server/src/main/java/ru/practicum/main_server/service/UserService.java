@@ -26,7 +26,7 @@ public class UserService {
 
 
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        if(ids.isEmpty()){
+        if (ids.isEmpty()) {
             return userRepository.findAll(PageRequest.of(from / size, size))
                     .stream()
                     .map(UserMapper::toUserDto)
@@ -48,8 +48,8 @@ public class UserService {
         userRepository.delete(checkAndGetUser(userId));
     }
 
-    public User checkAndGetUser(long userId){
-        return userRepository.findById(userId).orElseThrow(()->
+    public User checkAndGetUser(long userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
                 new ObjectNotFoundException("user with id = " + userId + " not found"));
     }
 }

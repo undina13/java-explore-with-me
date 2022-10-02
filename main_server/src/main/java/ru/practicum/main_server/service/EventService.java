@@ -2,9 +2,10 @@ package ru.practicum.main_server.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-//import ru.practicum.main_server.client.HitClient;
+import ru.practicum.main_server.client.HitClient;
 import ru.practicum.main_server.dto.*;
 import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.exception.WrongRequestException;
@@ -14,9 +15,12 @@ import ru.practicum.main_server.repository.CategoryRepository;
 import ru.practicum.main_server.repository.EventRepository;
 import ru.practicum.main_server.repository.ParticipationRepository;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,15 +31,15 @@ public class EventService {
     private final EventRepository eventRepository;
     private final ParticipationRepository participationRepository;
     private final UserService userService;
- //   private final HitClient hitClient;
+    private final HitClient hitClient;
     private final CategoryRepository categoryRepository;
     private final LocationService locationService;
 
-    public EventService(EventRepository eventRepository, ParticipationRepository participationRepository, UserService userService, CategoryRepository categoryRepository, LocationService locationService) {
+    public EventService(EventRepository eventRepository, ParticipationRepository participationRepository, HitClient hitClient, UserService userService, CategoryRepository categoryRepository, LocationService locationService) {
         this.eventRepository = eventRepository;
         this.participationRepository = participationRepository;
         this.userService = userService;
- //       this.hitClient = hitClient;
+        this.hitClient = hitClient;
         this.categoryRepository = categoryRepository;
         this.locationService = locationService;
     }
@@ -52,7 +56,7 @@ public class EventService {
         if (rangeEnd == null) {
             end = LocalDateTime.MAX;
         } else {
-            end = LocalDateTime.parse(rangeEnd,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
 
         List<Event> events = eventRepository.searchEvents(text, categories, paid, start, end,
@@ -78,7 +82,7 @@ public class EventService {
         if (onlyAvailable) {
             eventShortDtos = eventShortDtos.stream()
                     .filter(eventShortDto -> eventShortDto.getConfirmedRequests()
-                                    <= checkAndGetEvent(eventShortDto.getId()).getParticipantLimit())
+                            <= checkAndGetEvent(eventShortDto.getId()).getParticipantLimit())
                     .collect(Collectors.toList());
         }
         return eventShortDtos;
@@ -147,7 +151,7 @@ public class EventService {
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
         Location location = newEventDto.getLocation();
         log.info("before location save");
-      location =  locationService.save(location);
+        location = locationService.save(location);
         log.info("location save");
         Event event = EventMapper.toNewEvent(newEventDto);
         log.info("event {}", event);
@@ -167,7 +171,7 @@ public class EventService {
 
     public EventFullDto getEventCurrentUser(Long userId, Long eventId) {
         Event event = checkAndGetEvent(eventId);
-        if(!event.getInitiator().getId().equals(userId)){
+        if (!event.getInitiator().getId().equals(userId)) {
             throw new WrongRequestException("only initiator can get fullEventDto");
         }
         return setConfirmedRequestsAndViewsEventFullDto(EventMapper.toEventFullDto(event));
@@ -176,10 +180,10 @@ public class EventService {
     @Transactional
     public EventFullDto cancelEvent(Long userId, Long eventId) {
         Event event = checkAndGetEvent(eventId);
-        if(!event.getInitiator().getId().equals(userId)){
+        if (!event.getInitiator().getId().equals(userId)) {
             throw new WrongRequestException("only initiator can cancel event");
         }
-        if(!event.getState().equals(State.PENDING)){
+        if (!event.getState().equals(State.PENDING)) {
             throw new WrongRequestException("you can cancel only pending event");
         }
         event.setState(State.CANCELED);
@@ -195,16 +199,16 @@ public class EventService {
         if (rangeStart == null) {
             start = LocalDateTime.now();
         } else {
-            start = LocalDateTime.parse(rangeStart,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
         LocalDateTime end;
         if (rangeEnd == null) {
             end = LocalDateTime.MAX;
         } else {
-            end = LocalDateTime.parse(rangeEnd,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            end = LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
 
-        return eventRepository.searchEventsByAdmin(users,states, categories, start, end,
+        return eventRepository.searchEventsByAdmin(users, states, categories, start, end,
                 PageRequest.of(from / size, size))
                 .stream()
                 .map(EventMapper::toEventFullDto)
@@ -258,11 +262,11 @@ public class EventService {
 
     @Transactional
     public EventFullDto publishEventByAdmin(Long eventId) {
-        Event event =checkAndGetEvent(eventId);
+        Event event = checkAndGetEvent(eventId);
         if (event.getEventDate().isBefore(LocalDateTime.now().minusHours(2))) {
             throw new WrongRequestException("date event is too late");
         }
-        if(!event.getState().equals(State.PENDING)){
+        if (!event.getState().equals(State.PENDING)) {
             throw new WrongRequestException("admin can publish only pending event");
         }
         event.setState(State.PUBLISHED);
@@ -273,7 +277,7 @@ public class EventService {
 
     @Transactional
     public EventFullDto rejectEventByAdmin(Long eventId) {
-        Event event =checkAndGetEvent(eventId);
+        Event event = checkAndGetEvent(eventId);
 
         event.setState(State.CANCELED);
         event = eventRepository.save(event);
@@ -287,32 +291,43 @@ public class EventService {
     }
 
     public EventShortDto setConfirmedRequestsAndViewsEventShortDto(EventShortDto eventShortDto) {
-        int confirmedRequests = participationRepository.countByEventIdAndStatus(eventShortDto.getId(), StatusRequest.CONFIRMED);
+        int confirmedRequests = participationRepository
+                .countByEventIdAndStatus(eventShortDto.getId(), StatusRequest.CONFIRMED);
         eventShortDto.setConfirmedRequests(confirmedRequests);
         eventShortDto.setViews(getViews(eventShortDto.getId()));
         return eventShortDto;
     }
 
     public EventFullDto setConfirmedRequestsAndViewsEventFullDto(EventFullDto eventFullDto) {
-        int confirmedRequests = participationRepository.countByEventIdAndStatus(eventFullDto.getId(), StatusRequest.CONFIRMED);
+        int confirmedRequests = participationRepository
+                .countByEventIdAndStatus(eventFullDto.getId(), StatusRequest.CONFIRMED);
         eventFullDto.setConfirmedRequests(confirmedRequests);
         eventFullDto.setViews(getViews(eventFullDto.getId()));
         return eventFullDto;
     }
 
     public int getViews(long eventId) {
-//        ResponseEntity<Object> responseEntity = null;
-//        try {
-//            responseEntity = hitClient.getStat(
-//                    LocalDateTime.MIN,
-//                    LocalDateTime.now(),
-//                    List.of("/events/" + eventId),
-//                    false
-//            );
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        Integer hits = (Integer) ((LinkedHashMap) responseEntity.getBody()).get("hits");
-        return 5;
+        ResponseEntity<Object> responseEntity = null;
+        try {
+            responseEntity = hitClient.getStat(
+                    LocalDateTime.MIN,
+                    LocalDateTime.now(),
+                    List.of("/events/" + eventId),
+                    false
+            );
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return (Integer) ((LinkedHashMap) responseEntity.getBody()).get("hits");
+    }
+
+    public void sentHitStat(HttpServletRequest request) {
+        EndpointHit endpointHit = EndpointHit.builder()
+                .app("main_server")
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
+                .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build();
+        hitClient.createHit(endpointHit);
     }
 }

@@ -4,10 +4,8 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.main_server.dto.EventFullDto;
 import ru.practicum.main_server.dto.EventShortDto;
 import ru.practicum.main_server.dto.NewEventDto;
-import ru.practicum.main_server.dto.UpdateEventRequest;
 import ru.practicum.main_server.model.Event;
 import ru.practicum.main_server.model.State;
-import ru.practicum.main_server.service.ParticipationService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

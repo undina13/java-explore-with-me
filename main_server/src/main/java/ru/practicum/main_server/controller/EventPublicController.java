@@ -31,6 +31,7 @@ public class EventPublicController {
                                   @RequestParam(defaultValue = "10") int size,
                                   HttpServletRequest request) {
         log.info("get events public");
+        eventService.sentHitStat(request);
         return eventService
                 .getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
@@ -38,6 +39,7 @@ public class EventPublicController {
     @GetMapping("/{id}")
     EventFullDto getEventById(@PathVariable long id, HttpServletRequest request) {
         log.info("get event id={}", id);
+        eventService.sentHitStat(request);
         return eventService.getEventById(id);
     }
 }

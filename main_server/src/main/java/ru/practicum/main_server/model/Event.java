@@ -23,11 +23,9 @@ public class Event {
     private String annotation;
 
     @ManyToOne
- //   @Column(name = "category_id", nullable = false)
     private Category category;
 
-   // private int confirmedRequests;
-   @Column(name = "created_on")
+    @Column(name = "created_on")
     private LocalDateTime createdOn;
 
     @Column(name = "description")
@@ -37,7 +35,6 @@ public class Event {
     private LocalDateTime eventDate;
 
     @ManyToOne
- //   @Column(name = "initiator_id", nullable = false)
     private User initiator;
 
     @ManyToOne()
@@ -60,6 +57,4 @@ public class Event {
 
     @Column(name = "title")
     private String title;
-
-   // private  int views;
 }

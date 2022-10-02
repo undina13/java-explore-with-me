@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main_server.dto.AdminUpdateEventRequest;
 import ru.practicum.main_server.dto.EventFullDto;
-import ru.practicum.main_server.dto.NewEventDto;
 import ru.practicum.main_server.model.State;
 import ru.practicum.main_server.service.EventService;
 

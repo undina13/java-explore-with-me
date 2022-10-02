@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 @UtilityClass
 public class HitMapper {
-    public static HitModel toHitModel(EndpointHit endpointHit){
+    public static HitModel toHitModel(EndpointHit endpointHit) {
         return HitModel.builder()
                 .app(endpointHit.getApp())
                 .ip(endpointHit.getIp())
@@ -19,7 +19,7 @@ public class HitMapper {
                 .build();
     }
 
-    public static EndpointHit toEndpointHit(HitModel hitModel){
+    public static EndpointHit toEndpointHit(HitModel hitModel) {
         return EndpointHit.builder()
                 .id(hitModel.getId())
                 .app(hitModel.getApp())

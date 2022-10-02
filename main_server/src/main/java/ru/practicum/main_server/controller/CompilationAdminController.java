@@ -37,14 +37,14 @@ public class CompilationAdminController {
 
     @PatchMapping("/{compId}/events/{eventId}")
     public void addEventToCompilation(@PathVariable Long compId,
-                                        @PathVariable Long eventId) {
+                                      @PathVariable Long eventId) {
         log.info("add event {} to compilation {}", eventId, compId);
         compilationService.addEventToCompilation(compId, eventId);
     }
 
     @DeleteMapping("/{compId}/pin")
     public void deleteCompilationFromMainPage(@PathVariable Long compId) {
-        log.info("delete  compilation {} from main page",  compId);
+        log.info("delete  compilation {} from main page", compId);
         compilationService.deleteCompilationFromMainPage(compId);
     }
 

@@ -20,7 +20,7 @@ public class UserAdminController {
 
     @GetMapping
     public List<UserDto> getUsers(
-            @RequestParam (required = false) List<Long> ids,
+            @RequestParam(required = false) List<Long> ids,
             @RequestParam(defaultValue = "0", required = false) int from,
             @RequestParam(defaultValue = "10", required = false) int size) {
         log.info("get users");

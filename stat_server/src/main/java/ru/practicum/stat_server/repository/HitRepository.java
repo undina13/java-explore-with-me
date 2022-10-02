@@ -10,8 +10,7 @@ public interface HitRepository extends JpaRepository<HitModel, Long> {
 
     List<HitModel> findAllByUriAndTimestampBetween(String uri, LocalDateTime start, LocalDateTime end);
 
-    List<HitModel> findAllByTimestampBetween( LocalDateTime start, LocalDateTime end);
-
+    List<HitModel> findAllByTimestampBetween(LocalDateTime start, LocalDateTime end);
 
 
 }

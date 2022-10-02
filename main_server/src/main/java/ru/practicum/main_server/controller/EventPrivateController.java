@@ -74,8 +74,8 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}/requests/{reqId}/reject")
     public ParticipationRequestDto rejectParticipationEventRequest(@PathVariable Long userId,
-                                                      @PathVariable Long eventId,
-                                                      @PathVariable Long reqId) {
+                                                                   @PathVariable Long eventId,
+                                                                   @PathVariable Long reqId) {
         log.info("approval  participations {} userId{}", reqId, userId);
         return participationService.rejectParticipationEventRequest(userId, eventId, reqId);
     }

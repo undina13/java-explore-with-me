@@ -2,16 +2,15 @@ package ru.practicum.main_server.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-import ru.practicum.main_server.model.Category;
-import ru.practicum.main_server.model.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import ru.practicum.main_server.model.Event;
 import ru.practicum.main_server.model.State;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface EventRepository extends JpaRepository<Event, Long>{
+public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event AS e " +
             "WHERE ((:text) IS NULL " +
             "OR UPPER(e.annotation) LIKE UPPER(CONCAT('%', :text, '%')) " +
@@ -21,7 +20,7 @@ public interface EventRepository extends JpaRepository<Event, Long>{
             "AND (e.eventDate >= :start) " +
             "AND ( e.eventDate <= :end)")
     Page<Event> searchEvents(String text, List<Long> categories, Boolean paid, LocalDateTime start,
-                           LocalDateTime end,  Pageable pageable);
+                             LocalDateTime end, Pageable pageable);
 
     Page<Event> findAllByInitiatorId(Long userId, Pageable pageable);
 
@@ -32,7 +31,7 @@ public interface EventRepository extends JpaRepository<Event, Long>{
             "AND (e.eventDate >= :start) " +
             "AND ( e.eventDate <= :end)")
     Page<Event> searchEventsByAdmin(List<Long> users, List<State> states, List<Long> categories,
-                             LocalDateTime start, LocalDateTime end, Pageable pageable);
+                                    LocalDateTime start, LocalDateTime end, Pageable pageable);
 }
 
 

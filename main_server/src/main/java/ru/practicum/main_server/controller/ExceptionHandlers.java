@@ -12,15 +12,15 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class ExceptionHandlers {
 
-        @ExceptionHandler(ObjectNotFoundException.class)
-        public ApiError notFound(RuntimeException e) {
-            return ApiError.builder()
-                            .status(String.valueOf(HttpStatus.NOT_FOUND))
-                            .reason("object not found")
-                            .message(e.getLocalizedMessage())
-                            .timestamp(LocalDateTime.now())
-                            .build();
-        }
+    @ExceptionHandler(ObjectNotFoundException.class)
+    public ApiError notFound(RuntimeException e) {
+        return ApiError.builder()
+                .status(String.valueOf(HttpStatus.NOT_FOUND))
+                .reason("object not found")
+                .message(e.getLocalizedMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 
     @ExceptionHandler(WrongRequestException.class)
     public ApiError forbidden(RuntimeException e) {

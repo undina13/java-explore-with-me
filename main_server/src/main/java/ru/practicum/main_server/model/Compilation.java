@@ -16,14 +16,13 @@ public class Compilation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-   // @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-   @EqualsAndHashCode.Exclude
-   @ManyToMany
-   @JoinTable(
-           name = "compilations_events",
-           joinColumns = {@JoinColumn(name = "compilation_id")},
-           inverseJoinColumns = {@JoinColumn(name = "event_id")}
-   )
+    @EqualsAndHashCode.Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "compilations_events",
+            joinColumns = {@JoinColumn(name = "compilation_id")},
+            inverseJoinColumns = {@JoinColumn(name = "event_id")}
+    )
     private List<Event> events;
 
     @Column(name = "title", nullable = false)

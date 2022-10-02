@@ -52,7 +52,8 @@ public class ParticipationService {
             throw new WrongRequestException("you can not request not published event");
         }
         int confirmedRequests = participationRepository.countDistinctByEventAndStatus(event, StatusRequest.CONFIRMED);
-        if (event.getParticipantLimit() != null && event.getParticipantLimit() != 0 && event.getParticipantLimit() <= confirmedRequests) {
+        if (event.getParticipantLimit() != null && event.getParticipantLimit() != 0 && event
+                .getParticipantLimit() <= confirmedRequests) {
             throw new WrongRequestException("Participant limit already full");
         }
         Participation participation = Participation.builder()
@@ -90,20 +91,21 @@ public class ParticipationService {
                 .map(ParticipationMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
-@Transactional
+
+    @Transactional
     public ParticipationRequestDto approvalParticipationEventRequest(Long userId, Long eventId, Long participationId) {
         Event event = eventService.checkAndGetEvent(eventId);
         if (!event.getInitiator().getId().equals(userId)) {
             throw new WrongRequestException("Only owner can see requests");
         }
         Participation participation = participationRepository.findById(participationId)
-                .orElseThrow(()->new ObjectNotFoundException("participation not found"));
-        if(!participation.getStatus().equals(StatusRequest.PENDING)){
+                .orElseThrow(() -> new ObjectNotFoundException("participation not found"));
+        if (!participation.getStatus().equals(StatusRequest.PENDING)) {
             throw new WrongRequestException("Only status pending can be approval");
         }
         int countConfirmedRequests = participationRepository.countByEventIdAndStatus(eventId, StatusRequest.CONFIRMED);
-        if(event.getParticipantLimit()>=countConfirmedRequests){
-          participation.setStatus(StatusRequest.REJECTED);
+        if (event.getParticipantLimit() >= countConfirmedRequests) {
+            participation.setStatus(StatusRequest.REJECTED);
         }
         participation.setStatus(StatusRequest.CONFIRMED);
         return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));
@@ -116,7 +118,7 @@ public class ParticipationService {
             throw new WrongRequestException("Only owner can see requests");
         }
         Participation participation = participationRepository.findById(participationId)
-                .orElseThrow(()->new ObjectNotFoundException("participation not found"));
+                .orElseThrow(() -> new ObjectNotFoundException("participation not found"));
 
         participation.setStatus(StatusRequest.REJECTED);
         return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participation));

@@ -10,8 +10,6 @@ import ru.practicum.stat_server.model.HitModel;
 import ru.practicum.stat_server.repository.HitRepository;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -47,16 +45,16 @@ public class HitService {
 
     public List<ViewStats> getViewStats(String start, String end, List<String> uris, Boolean unique) throws UnsupportedEncodingException {
         LocalDateTime startDate = LocalDateTime.parse(
-               start,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         );
-        LocalDateTime endDate = LocalDateTime.parse( end,  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime endDate = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         List<ViewStats> viewStatsList = new ArrayList<>();
-        if(uris==null){
-           uris = hitRepository.findAllByTimestampBetween(startDate, endDate)
-                   .stream()
-                   .map(HitModel::getUri)
-                   .distinct()
-                   .collect(Collectors.toList());
+        if (uris == null) {
+            uris = hitRepository.findAllByTimestampBetween(startDate, endDate)
+                    .stream()
+                    .map(HitModel::getUri)
+                    .distinct()
+                    .collect(Collectors.toList());
         }
         for (String uri : uris) {
             List<HitModel> models = hitRepository.findAllByUriAndTimestampBetween(uri, startDate, endDate);
