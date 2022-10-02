@@ -18,23 +18,29 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name", length = 100)
+    private String name;
+
     @Column(name = "lat", nullable = false)
-    private float lat;
+    private Float lat;
 
     @Column(name = "lon", nullable = false)
-    private float lon;
+    private Float lon;
+
+    @Column(name = "radius")
+    private Float radius;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Location location = (Location) o;
-        return Float.compare(location.lat, lat) == 0 && Float
-                .compare(location.lon, lon) == 0 && Objects.equals(id, location.id);
+        return id.equals(location.id) && Objects.equals(name, location.name) && lat.equals(location.lat) && lon
+                .equals(location.lon) && Objects.equals(radius, location.radius);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, lat, lon);
+        return Objects.hash(id, name, lat, lon, radius);
     }
 }

@@ -148,9 +148,10 @@ public class EventService {
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
         Location location = newEventDto.getLocation();
-        log.info("before location save");
-        location = locationService.save(location);
-        log.info("location save");
+        log.info("before location find");
+        location = locationService.findByLatAndLon(location.getLat(), location.getLon())
+                .orElseThrow(() -> new ObjectNotFoundException("Location not found"));
+        log.info("location find");
         Event event = EventMapper.toNewEvent(newEventDto);
         log.info("event {}", event);
         if (event.getEventDate().isBefore(LocalDateTime.now().minusHours(2))) {
