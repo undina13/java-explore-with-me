@@ -26,16 +26,16 @@ public class UserService {
 
 
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-       // if(ids.isEmpty()){
+        if(ids.isEmpty()){
             return userRepository.findAll(PageRequest.of(from / size, size))
                     .stream()
                     .map(UserMapper::toUserDto)
                     .collect(Collectors.toList());
-    //    }
-//        return userRepository.findUsersByIds(ids, PageRequest.of(from / size, size))
-//                .stream()
-//                .map(UserMapper::toUserDto)
-//                .collect(Collectors.toList());
+        }
+        return userRepository.findAllByIdIn(ids, PageRequest.of(from / size, size))
+                .stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
