@@ -22,7 +22,7 @@ public class HitController {
 
     @PostMapping("/hit")
     public EndpointHit createHit(@RequestBody EndpointHit endpointHit) {
-        log.info("create hit");
+        log.info("create hit {}", endpointHit);
         return hitService.createHit(endpointHit);
     }
 
@@ -31,6 +31,7 @@ public class HitController {
                                         @RequestParam String end,
                                         @RequestParam List<String> uris,
                                         @RequestParam(defaultValue = "false") Boolean unique) throws UnsupportedEncodingException {
+        log.info("getViewStats {}", uris);
         return hitService.getViewStats(start, end, uris, unique);
     }
 }

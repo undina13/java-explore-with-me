@@ -11,17 +11,18 @@ import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.exception.WrongRequestException;
 import ru.practicum.main_server.mapper.EventMapper;
 import ru.practicum.main_server.model.*;
+import ru.practicum.main_server.model.ViewStats;
 import ru.practicum.main_server.repository.CategoryRepository;
 import ru.practicum.main_server.repository.EventRepository;
 import ru.practicum.main_server.repository.ParticipationRepository;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -307,21 +308,23 @@ public class EventService {
     }
 
     public int getViews(long eventId) {
-        ResponseEntity<Object> responseEntity = null;
-        try {
-            responseEntity = hitClient.getStat(
-                    LocalDateTime.MIN,
-                    LocalDateTime.now(),
-                    List.of("/events/" + eventId),
-                    false
-            );
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        ResponseEntity<Object> responseEntity = hitClient.getStat(
+                LocalDateTime.of(2020, 9, 1, 0, 0),
+                LocalDateTime.now(),
+                List.of("/events/" + eventId),
+                false);
+
+        log.info("responseEntity {}", responseEntity.getBody());
+        if(responseEntity.getBody().equals("")){
+            Integer hits = (Integer) ((LinkedHashMap) responseEntity.getBody()).get("hits");
+            return hits;
         }
-        return (Integer) ((LinkedHashMap) responseEntity.getBody()).get("hits");
+
+        return 0;
     }
 
     public void sentHitStat(HttpServletRequest request) {
+        log.info("request URL {}", request.getRequestURI());
         EndpointHit endpointHit = EndpointHit.builder()
                 .app("main_server")
                 .uri(request.getRequestURI())

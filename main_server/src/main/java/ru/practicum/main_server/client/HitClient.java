@@ -33,14 +33,13 @@ public class HitClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getStat(LocalDateTime start, LocalDateTime end,
-                                          List<String> uris, Boolean unique) throws UnsupportedEncodingException {
+                                           List<String> uris, Boolean unique) {
         Map<String, Object> parameters = Map.of(
                 "start", start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                 "end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                "uris", uris,
+                "uris", uris.get(0),
                 "unique", unique
         );
-        return get("/stats?start=" + parameters.get("start") + "&end=" + parameters.get("end") +
-                "&uris=" + String.join(", ", uris) + "&unique=" + unique, parameters);
+        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
 }
