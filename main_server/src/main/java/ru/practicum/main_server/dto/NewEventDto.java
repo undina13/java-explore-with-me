@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.main_server.model.Location;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,6 +20,7 @@ public class NewEventDto {
 
     private String description;
 
+    @NotNull
     private String eventDate;
 
     private Location location;

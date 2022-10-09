@@ -1,4 +1,4 @@
-package ru.practicum.stats_server;
+package ru.practicum.stats_server.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.stats_server.dto.EndpointHit;

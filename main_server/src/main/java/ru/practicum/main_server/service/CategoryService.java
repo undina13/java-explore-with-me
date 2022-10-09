@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_server.dto.CategoryDto;
 import ru.practicum.main_server.dto.NewCategoryDto;
+import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.mapper.CategoryMapper;
 import ru.practicum.main_server.model.Category;
 import ru.practicum.main_server.repository.CategoryRepository;
@@ -32,19 +33,22 @@ public class CategoryService {
 
     public CategoryDto getCategoryById(long id) {
 
-        return CategoryMapper.toCategoryDto(categoryRepository.findById(id).get());
+        return CategoryMapper.toCategoryDto(categoryRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Category not found")));
     }
 
     @Transactional
     public CategoryDto updateCategory(CategoryDto categoryDto) {
-        Category category = categoryRepository.findById(categoryDto.getId()).get();
+        Category category = categoryRepository.findById(categoryDto.getId())
+                .orElseThrow(() -> new ObjectNotFoundException("Category not found"));
         category.setName(categoryDto.getName());
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Transactional
     public void deleteCategory(Long catId) {
-        Category category = categoryRepository.findById(catId).get();
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new ObjectNotFoundException("Category not found"));
         categoryRepository.delete(category);
     }
 

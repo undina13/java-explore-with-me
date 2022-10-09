@@ -6,6 +6,7 @@ import ru.practicum.main_server.dto.*;
 import ru.practicum.main_server.service.EventService;
 import ru.practicum.main_server.service.ParticipationService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -38,7 +39,7 @@ public class EventPrivateController {
 
     @PostMapping
     public EventFullDto createEvent(@PathVariable Long userId,
-                                    @RequestBody NewEventDto newEventDto) {
+                                    @RequestBody @Valid NewEventDto newEventDto) {
         log.info("create event  userId{} {}", userId, newEventDto);
         return eventService.createEvent(userId, newEventDto);
     }

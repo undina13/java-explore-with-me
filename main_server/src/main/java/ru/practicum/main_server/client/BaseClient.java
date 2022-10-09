@@ -39,11 +39,9 @@ public class BaseClient {
 
         ResponseEntity<Object> responseEntity;
         try {
-            if (parameters != null) {
-                responseEntity = rest.exchange(path, method, requestEntity, Object.class, parameters);
-            } else {
-                responseEntity = rest.exchange(path, method, requestEntity, Object.class);
-            }
+            responseEntity = (parameters != null) ? rest.exchange(path, method, requestEntity, Object.class, parameters)
+                    : rest.exchange(path, method, requestEntity, Object.class);
+
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
         }

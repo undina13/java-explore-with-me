@@ -7,6 +7,7 @@ import ru.practicum.stats_server.dto.EndpointHit;
 import ru.practicum.stats_server.dto.ViewStats;
 import ru.practicum.stats_server.service.HitService;
 
+import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class HitController {
     }
 
     @PostMapping("/hit")
-    public EndpointHit createHit(@RequestBody EndpointHit endpointHit) {
+    public EndpointHit createHit(@RequestBody @Valid EndpointHit endpointHit) {
         log.info("create hit {}", endpointHit);
         return hitService.createHit(endpointHit);
     }

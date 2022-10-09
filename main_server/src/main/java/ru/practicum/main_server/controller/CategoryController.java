@@ -17,7 +17,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping()
+    @GetMapping
     List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") int from,
                                     @RequestParam(defaultValue = "10") int size) {
         log.info("get categories");

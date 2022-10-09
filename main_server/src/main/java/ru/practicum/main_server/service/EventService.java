@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +35,8 @@ public class EventService {
     private final CategoryRepository categoryRepository;
     private final LocationService locationService;
 
-    public EventService(EventRepository eventRepository, ParticipationRepository participationRepository, HitClient hitClient, UserService userService, CategoryRepository categoryRepository, LocationService locationService) {
+    public EventService(EventRepository eventRepository, ParticipationRepository participationRepository,
+                        HitClient hitClient, UserService userService, CategoryRepository categoryRepository, LocationService locationService) {
         this.eventRepository = eventRepository;
         this.participationRepository = participationRepository;
         this.userService = userService;
@@ -45,12 +47,9 @@ public class EventService {
 
     public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, String rangeStart,
                                          String rangeEnd, Boolean onlyAvailable, String sort, int from, int size) {
-        LocalDateTime start;
-        if (rangeStart == null) {
-            start = LocalDateTime.now();
-        } else {
-            start = LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        }
+        LocalDateTime start = (rangeStart == null) ? LocalDateTime.now() :
+                LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
         LocalDateTime end;
         if (rangeEnd == null) {
             end = LocalDateTime.MAX;
@@ -219,18 +218,19 @@ public class EventService {
     public EventFullDto updateEventByAdmin(Long eventId, AdminUpdateEventRequest adminUpdateEventRequest) {
         Event event = checkAndGetEvent(eventId);
 
+        Optional.ofNullable(adminUpdateEventRequest.getAnnotation())
+                .ifPresent(event::setAnnotation);
 
-        if (adminUpdateEventRequest.getAnnotation() != null) {
-            event.setAnnotation(adminUpdateEventRequest.getAnnotation());
-        }
         if (adminUpdateEventRequest.getCategory() != null) {
             Category category = categoryRepository.findById(adminUpdateEventRequest.getCategory())
                     .orElseThrow(() -> new ObjectNotFoundException("Category not found"));
             event.setCategory(category);
         }
-        if (adminUpdateEventRequest.getDescription() != null) {
-            event.setDescription(adminUpdateEventRequest.getDescription());
-        }
+
+        Optional.ofNullable(adminUpdateEventRequest.getDescription())
+                .ifPresent(event::setDescription);
+
+
         if (adminUpdateEventRequest.getEventDate() != null) {
             LocalDateTime date = LocalDateTime.parse(adminUpdateEventRequest.getEventDate(),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -239,21 +239,21 @@ public class EventService {
             }
             event.setEventDate(date);
         }
-        if (adminUpdateEventRequest.getLocation() != null) {
-            event.setLocation(adminUpdateEventRequest.getLocation());
-        }
-        if (adminUpdateEventRequest.getRequestModeration() != null) {
-            event.setRequestModeration(adminUpdateEventRequest.getRequestModeration());
-        }
-        if (adminUpdateEventRequest.getPaid() != null) {
-            event.setPaid(adminUpdateEventRequest.getPaid());
-        }
-        if (adminUpdateEventRequest.getParticipantLimit() != null) {
-            event.setParticipantLimit(adminUpdateEventRequest.getParticipantLimit());
-        }
-        if (adminUpdateEventRequest.getTitle() != null) {
-            event.setTitle(adminUpdateEventRequest.getTitle());
-        }
+        Optional.ofNullable(adminUpdateEventRequest.getLocation())
+                .ifPresent(event::setLocation);
+
+        Optional.ofNullable(adminUpdateEventRequest.getRequestModeration())
+                .ifPresent(event::setRequestModeration);
+
+        Optional.ofNullable(adminUpdateEventRequest.getPaid())
+                .ifPresent(event::setPaid);
+
+        Optional.ofNullable(adminUpdateEventRequest.getParticipantLimit())
+                .ifPresent(event::setParticipantLimit);
+
+        Optional.ofNullable(adminUpdateEventRequest.getTitle())
+                .ifPresent(event::setTitle);
+
         event = eventRepository.save(event);
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         return setConfirmedRequestsAndViewsEventFullDto(eventFullDto);

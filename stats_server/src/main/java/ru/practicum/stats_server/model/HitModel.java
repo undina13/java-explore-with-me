@@ -19,13 +19,13 @@ public class HitModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "app")
+    @Column(name = "app", length = 50)
     private String app;
 
-    @Column(name = "uri")
+    @Column(name = "uri", length = 254)
     private String uri;
 
-    @Column(name = "ip")
+    @Column(name = "ip", length = 50)
     private String ip;
 
     @Column(name = "timestamp")

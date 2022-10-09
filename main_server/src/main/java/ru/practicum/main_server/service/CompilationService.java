@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main_server.dto.CompilationDto;
 import ru.practicum.main_server.dto.EventShortDto;
 import ru.practicum.main_server.dto.NewCompilationDto;
+import ru.practicum.main_server.exception.ObjectNotFoundException;
 import ru.practicum.main_server.mapper.CompilationMapper;
 import ru.practicum.main_server.model.Compilation;
 import ru.practicum.main_server.model.Event;
@@ -39,7 +40,8 @@ public class CompilationService {
     }
 
     public CompilationDto getCompilationById(long id) {
-        CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilationRepository.findById(id).get());
+        CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilationRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Compilation not found")));
         return setViewsAndConfirmedRequestsInDto(compilationDto);
     }
 
@@ -48,7 +50,8 @@ public class CompilationService {
         Compilation compilation = CompilationMapper.toCompilation(newCompilationDto);
         List<Event> events = newCompilationDto.getEvents()
                 .stream()
-                .map(id -> eventRepository.findById(id).get())
+                .map(id -> eventRepository.findById(id)
+                        .orElseThrow(() -> new ObjectNotFoundException("Compilation not found")))
                 .collect(Collectors.toList());
         compilation.setEvents(events);
         Compilation newCompilation = compilationRepository.save(compilation);
@@ -58,32 +61,38 @@ public class CompilationService {
 
     @Transactional
     public void deleteCompilation(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId).get();
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new ObjectNotFoundException("Compilation not found"));
         compilationRepository.delete(compilation);
     }
 
     public void deleteEventFromCompilation(Long compId, Long eventId) {
-        Compilation compilation = compilationRepository.findById(compId).get();
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new ObjectNotFoundException("Compilation not found"));
         List<Event> events = compilation.getEvents();
-        events.remove(eventRepository.findById(eventId).get());
+        events.remove(eventRepository.findById(eventId)
+                .orElseThrow(() -> new ObjectNotFoundException("Event not found")));
         compilationRepository.save(compilation);
     }
 
     public void addEventToCompilation(Long compId, Long eventId) {
-        Compilation compilation = compilationRepository.findById(compId).get();
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new ObjectNotFoundException("Compilation not found"));
         List<Event> events = compilation.getEvents();
-        events.add(eventRepository.findById(eventId).get());
+        events.add(eventRepository.findById(eventId).orElseThrow(() -> new ObjectNotFoundException("Event not found")));
         compilationRepository.save(compilation);
     }
 
     public void deleteCompilationFromMainPage(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId).get();
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new ObjectNotFoundException("Compilation not found"));
         compilation.setPinned(false);
         compilationRepository.save(compilation);
     }
 
     public void addCompilationToMainPage(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId).get();
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new ObjectNotFoundException("Compilation not found"));
         compilation.setPinned(true);
         compilationRepository.save(compilation);
     }

@@ -3,13 +3,12 @@ package ru.practicum.stats_server.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.stats_server.HitMapper;
 import ru.practicum.stats_server.dto.EndpointHit;
 import ru.practicum.stats_server.dto.ViewStats;
+import ru.practicum.stats_server.mapper.HitMapper;
 import ru.practicum.stats_server.model.HitModel;
 import ru.practicum.stats_server.repository.HitRepository;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class HitService {
         return HitMapper.toEndpointHit(hitRepository.save(hitModel));
     }
 
-    public List<ViewStats> getViewStats(String start, String end, List<String> uris, Boolean unique) throws UnsupportedEncodingException {
+    public List<ViewStats> getViewStats(String start, String end, List<String> uris, Boolean unique) {
         LocalDateTime startDate = LocalDateTime.parse(
                 start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         );
@@ -58,7 +57,7 @@ public class HitService {
         }
         for (String uri : uris) {
             List<HitModel> models = hitRepository.findAllByUriAndTimestampBetween(uri, startDate, endDate);
-            if (unique) {
+            if (Boolean.TRUE.equals(unique)) {
                 models = models
                         .stream()
                         .filter(distinctByKey(HitModel::getIp))

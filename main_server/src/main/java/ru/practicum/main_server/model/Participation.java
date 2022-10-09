@@ -1,14 +1,14 @@
 package ru.practicum.main_server.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +20,7 @@ public class Participation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created")
+    @Column(name = "created", nullable = false)
     private LocalDateTime created;
 
     @ManyToOne
@@ -31,4 +31,18 @@ public class Participation {
 
     @Enumerated(EnumType.STRING)
     private StatusRequest status;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Participation that = (Participation) o;
+        return id.equals(that.id) && created.equals(that.created) && event.equals(that.event) && requester
+                .equals(that.requester) && status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, created, event, requester, status);
+    }
 }
