@@ -34,17 +34,16 @@ public class EventService {
     private final UserService userService;
     private final HitClient hitClient;
     private final CategoryRepository categoryRepository;
-   // private final LocationService locationService;
     private final LocationRepository locationRepository;
 
     public EventService(EventRepository eventRepository, ParticipationRepository participationRepository,
-                        HitClient hitClient, UserService userService, CategoryRepository categoryRepository, LocationService locationService, LocationRepository locationRepository) {
+                        HitClient hitClient, UserService userService, CategoryRepository categoryRepository,
+                        LocationRepository locationRepository) {
         this.eventRepository = eventRepository;
         this.participationRepository = participationRepository;
         this.userService = userService;
         this.hitClient = hitClient;
         this.categoryRepository = categoryRepository;
-     //   this.locationService = locationService;
         this.locationRepository = locationRepository;
     }
 
