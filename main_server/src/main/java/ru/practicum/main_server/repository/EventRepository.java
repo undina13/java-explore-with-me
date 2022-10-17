@@ -1,6 +1,7 @@
 package ru.practicum.main_server.repository;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,7 @@ import ru.practicum.main_server.model.State;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event AS e " +
@@ -32,6 +34,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND ( e.eventDate <= :end)")
     Page<Event> searchEventsByAdmin(List<Long> users, List<State> states, List<Long> categories,
                                     LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    @Query("SELECT e FROM Event AS e " +
+            "WHERE function('distance', e.location.lat, e.location.lon, :lat, :long) <= :radius")
+    Page<Event> searchEventsByLocation(Float lat, Float lon, Float radius, Pageable pageable);
 }
 
 

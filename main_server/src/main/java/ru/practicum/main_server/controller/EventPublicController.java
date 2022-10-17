@@ -42,4 +42,15 @@ public class EventPublicController {
         eventService.sentHitStat(request);
         return eventService.getEventById(id);
     }
+
+    @GetMapping("/location/{locId}")
+    List<EventShortDto> getEventsByLocation(@PathVariable long locId,
+                                            @RequestParam String sort,
+                                            @RequestParam(defaultValue = "0") int from,
+                                            @RequestParam(defaultValue = "10") int size) {
+        log.info("get events by location id = {}", locId);
+
+        return eventService.getEventsByLocation(locId, sort, from, size);
+    }
+
 }
